@@ -13,6 +13,8 @@ import           Data.Foldable
 
 import Control.Monad.IO.Class
 
+import qualified Data.Text.Lazy as T
+
 import Data.Song
 
 main = scotty 8080 $ do
@@ -20,40 +22,18 @@ main = scotty 8080 $ do
     middleware $ staticPolicy (noDots >-> addBase "public")
    
     get "/api/playlist" $ do
-        list <- liftIO playlist
-        json list
+        response <- liftMPD playlist
+        case response of 
+            Right songs -> json songs
+            
+            Left err -> handle err 
 
 --    get "/api/status" $ do 
 
     get "/api/play" $ do 
-        liftIO $ MPD.withMPD $ MPD.play Nothing
+        liftMPD $ MPD.play Nothing
         text "Started"
 
-playlist :: IO Playlist
-playlist = do 
-        Right songs <- MPD.withMPD $ MPD.playlistInfo Nothing
-        return $ map toSong songs
-    where
-        toSong s = Song 
-            (getOrDefault s MPD.Title "") 
-            (getOrDefault s MPD.Artist "")
+handle err = text . T.pack $ show err
 
-getOrDefault :: MPD.Song -> MPD.Metadata -> String -> String
-getOrDefault s m def = case M.lookup m tags of
-        Just value -> MPD.toString $ head value
-        Nothing ->  def
-    where tags = MPD.sgTags s
-
-
-sndMain :: IO ()
-sndMain = do 
-    putStrLn "VAGON IN DA HOUSE"
-    -- MPD.withMPD $ MPD.play Nothing
-    response <- MPD.withMPD $ MPD.playlistInfo Nothing
-    case response of 
-       (Right songs) -> forM_ songs $ \song -> do
-           let x = MPD.sgTags song
-           let (Just title) = M.lookup MPD.Title x
-           print title
-
-
+liftMPD = liftIO . MPD.withMPD
