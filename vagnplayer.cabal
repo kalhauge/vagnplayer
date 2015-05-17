@@ -40,6 +40,8 @@ executable vagnplayer
                      , scotty
                      , wai-middleware-static
 
+                     , text
+
                      , aeson
                        
   
