@@ -42,6 +42,8 @@ executable vagnplayer
 
                      , text
 
+                     , safe
+
                      , aeson
                        
   

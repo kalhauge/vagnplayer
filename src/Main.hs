@@ -1,39 +1,50 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-import Web.Scotty
-import Network.Wai.Middleware.Static
+import           Network.Wai.Middleware.Static as S
+import           Web.Scotty
 
-import Data.Monoid (mconcat)
+import qualified Network.MPD                   as MPD
 
-import qualified Network.MPD as MPD
+import           Control.Monad.IO.Class
+-- import           Control.Monad
 
-import qualified Data.Map.Lazy as M
+import qualified Data.Text.Lazy                as T
 
-import           Data.Foldable
+import           Data.Song
+import           Data.Status
+import           Data.Control
 
-import Control.Monad.IO.Class
-
-import qualified Data.Text.Lazy as T
-
-import Data.Song
-
+main :: IO ()
 main = scotty 8080 $ do
 
-    middleware $ staticPolicy (noDots >-> addBase "public")
-   
-    get "/api/playlist" $ do
-        response <- liftMPD playlist
-        case response of 
-            Right songs -> json songs
-            
-            Left err -> handle err 
+  middleware $ S.staticPolicy (S.noDots >-> S.addBase "public")
 
---    get "/api/status" $ do 
+  get "/" $ file "public/index.html"
 
-    get "/api/play" $ do 
-        liftMPD $ MPD.play Nothing
-        text "Started"
+  get "/api/playlist" $ do
+    songs <- liftMPD playlist
+    json songs
 
-handle err = text . T.pack $ show err
+  get "/api/status" $ do
+    status <- liftMPD vagnstatus
+    json status
+  
+  put "/api/control" $ do
+    (x :: Control) <- jsonData
+    liftMPD $ control x
+    text "OK";
 
-liftMPD = liftIO . MPD.withMPD
+
+liftMPD :: MPD.MPD a -> ActionM a
+liftMPD x = do 
+    response <- liftIO . MPD.withMPD $ x
+    case response of
+      Right value -> return value
+      Left err -> do 
+        handle err 
+        return undefined
+
+handle :: Show a => a -> ActionM ()
+handle err = raise . T.pack $ show err
+

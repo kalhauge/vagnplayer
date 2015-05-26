@@ -36,33 +36,52 @@
             <div class="form-group">
                 <label id="add-song-label"
                        class="control-label hide" for="add-song" >Add Song</label>
-                <div class="input-group">
+                <div class="">
                     <input id="add-song" placeholder="Add Song" class="form-control" type="text"/>
                 </div>
             </div>
         </form>
 
+        <div class="pager">
+            <div id="control" class="btn-group">
+              <button class="btn btn-default btn-large" ng-click="ctrl.prev()">
+                <span class="glyphicon glyphicon-fast-backward"></span>
+              </button>
+              <button class="btn btn-default btn-large" 
+                      ng-click="vm.isPlaying() ? ctrl.pause() : ctrl.play()">
+                <span class="glyphicon" ng-class="{
+                    'glyphicon-play': ctrl.isPaused(), 
+                    'glyphicon-pause': ctrl.isPlaying()
+                }"></span>
+              </button>
+              <button class="btn btn-default btn-large" ng-click="ctrl.next()">
+                <span class="glyphicon glyphicon-fast-forward"></span>
+              </button>
+            </div>
+        </div>
         <div class="panel panel-default">
             <!-- <div class="panel-heading">Playlist</div> -->
             <div class="panel-body">
-                <b ng-bind="ctrl.state.song.title"></b> 
-                    <i>by</i> 
-                <b ng-bind="ctrl.state.song.artist">Artist</b>
-                {{ctrl.state.song.seconds}}
+                <div class="text-center">
+                  <b ng-bind="ctrl.status.song.title"></b> 
+                      <i>by</i> 
+                  <b ng-bind="ctrl.status.song.artist">Artist</b>
+                </div>
+                {{ctrl.status.song.seconds}}
                 <div class="progress">
                   <div class="progress-bar" 
                        role="progressbar" 
-                       aria-valuenow="{{ctrl.state.progess}}" 
+                       aria-valuenow="{{ctrl.status.progess}}" 
                        aria-valuemin="0" 
                        aria-valuemax="100" 
-                       ng-style="{width: ctrl.state.progress + '%'}">
-                    <span class="sr-only">{{ctrl.state.progress}}% Complete</span>
+                       ng-style="{width: ctrl.status.progress + '%'}">
+                    <span class="sr-only">{{ctrl.status.progress}}% Complete</span>
                   </div>
                 </div>
-                <!--<pre ng-bind="ctrl.state | json"/>-->
+                <!--<pre ng-bind="ctrl.status | json"/>-->
             </div>
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="song in ctrl.playlist">
+                <li class="list-group-item text-center" ng-repeat="song in ctrl.playlist">
                     <b ng-bind="song.title"></b> 
                     <i>by</i> 
                     <b ng-bind="song.artist">Artist</b>
