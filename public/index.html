@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="bootstrap.min.css"/>
     <link rel="stylesheet" href="style.css"/>
     <script src="jquery-2.1.4.min.js"></script>
+    <script src="typeahead.bundle.js"></script>
+    <script src="handlebars-v3.0.3.js"></script>
     <script src="angular.min.js"></script>
     <script src="app.js"></script>
 </head>
@@ -36,27 +38,31 @@
             <div class="form-group">
                 <label id="add-song-label"
                        class="control-label hide" for="add-song" >Add Song</label>
-                <div class="">
-                    <input id="add-song" placeholder="Add Song" class="form-control" type="text"/>
+                <div>
+                    <input song-searcher class="typeahead form-control" id="add-song" 
+                           placeholder="Add Song" type="text"/>
                 </div>
             </div>
         </form>
 
         <div class="pager">
-            <div id="control" class="btn-group">
-              <button class="btn btn-default btn-large" ng-click="ctrl.prev()">
-                <span class="glyphicon glyphicon-fast-backward"></span>
-              </button>
-              <button class="btn btn-default btn-large" 
-                      ng-click="vm.isPlaying() ? ctrl.pause() : ctrl.play()">
-                <span class="glyphicon" ng-class="{
-                    'glyphicon-play': ctrl.isPaused(), 
-                    'glyphicon-pause': ctrl.isPlaying()
-                }"></span>
-              </button>
-              <button class="btn btn-default btn-large" ng-click="ctrl.next()">
-                <span class="glyphicon glyphicon-fast-forward"></span>
-              </button>
+            <div id="control" class="btn-group" ng-switch="ctrl.status.state">
+                <button class="btn btn-default btn-large" ng-click="ctrl.prev()">
+                    <span class="glyphicon glyphicon-fast-backward"></span>
+                </button>
+                <button class="btn btn-default btn-large" 
+                        ng-click="ctrl.pause()"
+                        ng-switch-when="PLAYING">
+                    <span class="glyphicon glyphicon-pause"></span>
+                </button>
+                <button class="btn btn-default btn-large" 
+                        ng-click="ctrl.play()"
+                        ng-switch-default>
+                    <span class="glyphicon glyphicon-play"></span>
+                </button>
+                <button class="btn btn-default btn-large" ng-click="ctrl.next()">
+                    <span class="glyphicon glyphicon-fast-forward"></span>
+                </button>
             </div>
         </div>
         <div class="panel panel-default">

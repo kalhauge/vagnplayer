@@ -12,6 +12,7 @@ import qualified Network.MPD as MPD
 data Song = Song { title :: String
                  , artist :: String
                  , length :: Integer
+                 , path :: String
                  } deriving (Show, Generic)
 
 type Playlist = [Song]
@@ -24,6 +25,7 @@ toSong s = Song
     (getOrDefault s MPD.Title "") 
     (getOrDefault s MPD.Artist "")
     (MPD.sgLength s)
+    (MPD.toString $ MPD.sgFilePath s)
 
 toPlaylist :: [MPD.Song] -> Playlist
 toPlaylist = map toSong 

@@ -1,6 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Data.Control where
+module Data.Control ( Command (..)
+                    , Control (..)
+                    , control
+                    ) where
 
+import Control.Monad.Trans (liftIO)
 import Data.Aeson
 
 import qualified Network.MPD as MPD
@@ -33,7 +37,8 @@ instance FromJSON Control where
   parseJSON (Object v) = Control <$> v .: "cmd"
 
 control :: Control -> MPD.MPD ()
-control (Control Play) = MPD.play Nothing
+control (Control Play) = MPD.pause False -- MPD.stSongPos <$> MPD.status >>= MPD.play
 control (Control Pause) = MPD.pause True
 control (Control Next) = MPD.next
 control (Control Prev) = MPD.previous
+
