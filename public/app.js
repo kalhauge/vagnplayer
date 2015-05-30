@@ -5,12 +5,12 @@
         .controller("AppController", AppController)
         .directive("songSearcher", songSearcher);
 
-    function songSearcher() {
+    function songSearcher($http) {
         return {
             restrict: "A",
             link: link
         };
-        function link (scope, elem) {
+        function link (scope, elem, ctrl, x) {
             var songs = new Bloodhound({
                 datumTokenizer : Bloodhound.tokenizers.whitespace,
                 queryTokenizer : Bloodhound.tokenizers.whitespace,
@@ -27,13 +27,20 @@
             }, { 
                 display: Handlebars.compile('{{{title}}} - {{{artist}}}'),
                 templates: {
-                    suggestion: Handlebars.compile('<div><strong>{{title}}</strong> – {{artist}}</div>')
+                    suggestion: Handlebars.compile(
+                        '<div><strong>{{title}}</strong> – {{artist}}</div>'
+                    )
                 },
                 name : "songs", 
                 source : songs 
             });
+            
             elem.on('typeahead:select', function (event, song) {
-                console.log(song);
+                if (song) {
+                    scope.ctrl.addSong(song).then(function () {
+                        elem.val('');
+                    });
+                }
             });
         }
     }
@@ -56,6 +63,8 @@
         ctrl.isPaused = isState('PAUSED');
         ctrl.isPlaying = isState('PLAYING');
 
+        ctrl.addSong = addSong;
+
         activate();
 
         function activate () {
@@ -66,7 +75,7 @@
 
         function updatePlaylist () { 
             $http.get('api/playlist').then(function (res) { 
-                ctrl.playlist = res.data;
+                ctrl.serverPlaylist = res.data;
             });
         }
         
@@ -88,10 +97,15 @@
             var now = (new Date()).getTime();
             var secondsSince = ((now - status.recievedAt) / 1000);
             var time = status.time + (status.state == 'PLAYING' ? secondsSince : 0);
+            var song = status.song;
+            while (time >= song.length) {
+                time -= song.length;
+                song = ctrl.serverPlaylist[song.index + 1];
+            }
             var progress = 100 * (time / status.song.length);
             return {
                 state : status.state,
-                song : status.song,
+                song : song,
                 time : time, 
                 progress : progress
             };
@@ -99,12 +113,20 @@
 
         function reset() {
             ctrl.status = interpolate(ctrl.serverStatus);
+            if (ctrl.status.song.index !== null) { 
+                ctrl.playlist = ctrl.serverPlaylist.slice(ctrl.status.song.index + 1);
+            }
         }
         
         function control (msg) {
             return function () { 
                 $http.put('api/control', { cmd: msg }).then(updateStatus);
             };
+        }
+
+        function addSong (song) {
+            return $http.put('api/playlist/' + song.path)
+                .then(updatePlaylist);
         }
     }
 })();

@@ -30,6 +30,11 @@ main = scotty 8080 $ do
   get "/api/playlist" $ do
     songs <- liftMPD playlist
     json songs
+  
+  put "/api/playlist/:path" $ do
+    path <- param "path"
+    liftMPD $ MPD.add (toPath path)
+    text "OK"
 
   get "/api/status" $ do
     status <- liftMPD vagnstatus
