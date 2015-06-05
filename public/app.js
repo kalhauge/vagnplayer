@@ -27,9 +27,10 @@
       }, { 
         display: Handlebars.compile('{{{title}}} - {{{artist}}}'),
         templates: {
-          suggestion: Handlebars.compile(
-                          '<div><strong>{{title}}</strong> – {{artist}}</div>'
-                          )
+          suggestion: 
+            Handlebars.compile(
+                '<div><strong>{{title}}</strong> – {{artist}}</div>'
+            )
         },
         name : "songs", 
         source : songs 
