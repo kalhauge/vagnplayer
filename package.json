@@ -1,0 +1,19 @@
+{
+  "name": "vagnplayer",
+  "version": "1.0.0",
+  "description": "A Awesome kiosk player using mpd",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kalhauge/vagnplayer.git"
+  },
+  "author": "Christian Gram Kalhauge",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kalhauge/vagnplayer/issues"
+  },
+  "homepage": "https://github.com/kalhauge/vagnplayer#readme"
+}
