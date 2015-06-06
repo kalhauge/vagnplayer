@@ -42,8 +42,8 @@ main = scotty 8080 $ do
 
   get "/api/song" $ do
     (query, rest) <- parseParams <$> params
-    
-    songs <- toPlaylist <$> liftMPD (MPD.search query) 
+   
+    songs <- toPlaylist <$> liftMPD (MPD.search query)
    
     let limit = case lookup "limit" rest of  
             Just x -> case parseParam x of

@@ -16,8 +16,18 @@
         queryTokenizer : Bloodhound.tokenizers.whitespace,
         identify : function (d) { return d.path;},
         remote: {
-          url : 'api/song?title=%QUERY',
-          wildcard: '%QUERY'    
+          url : 'api/song',
+          prepare: function (query, settings) { 
+            var args = _.map(query.split('-'), _.trim);
+            var names = ['title', 'artist'];
+            var attribs = _(_.zip(names, args))
+                .map(function (v) {
+                  if (_.compact(v).length == 2) {
+                    return v.join('=');
+                  }
+                }).compact().value();
+            return settings.url + '?' + attribs.join('&');
+          }
         }
       });
       elem.typeahead({
