@@ -9,9 +9,10 @@ module.exports = (grunt) ->
       all:
         expand: true
         src: ['**/*.coffee']
-        cwd: 'www/script'
+        cwd: 'www/scripts'
         combine: true,
-        out: 'public/app.js'
+        dest: 'public/'
+        ext: '.js'
     
     grunt.loadNpmTasks 'grunt-contrib-watch'
     grunt.loadNpmTasks 'grunt-contrib-coffee'
