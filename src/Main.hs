@@ -27,30 +27,28 @@ main = scotty 8080 $ do
 
   get "/" $ file "public/index.html"
 
-  get "/api/playlist" $ do
-    songs <- liftMPD playlist
-    json songs
+  get "/api/playlist" $ 
+    liftMPD playlist >>= handle >>= json
   
-  put "/api/playlist/:path" $ do
-    path <- param "path"
-    liftMPD $ MPD.add (toPath path)
+  put "/api/playlist" $ do
+    song <- jsonData
+    liftIO $ print song
+    handle =<< liftMPD (addSong song)
     text "OK"
 
-  get "/api/status" $ do
-    status <- liftMPD vagnstatus
-    json status
+  get "/api/status" $ 
+    liftMPD vagnstatus >>= handle >>= json
 
   get "/api/song" $ do
     (query, rest) <- parseParams <$> params
    
-    songs <- toPlaylist <$> liftMPD (MPD.search query)
-   
+    songs <- toPlaylist <$> (handle =<< liftMPD (MPD.search query))
+    
     let limit = case lookup "limit" rest of  
             Just x -> case parseParam x of
                 Right x -> x
                 Left msg -> 10
             Nothing -> 10
-    
     json $ take limit songs
      
   
@@ -59,17 +57,17 @@ main = scotty 8080 $ do
     liftMPD $ control x
     text "OK"
 
-liftMPD :: MPD a -> ActionM a
-liftMPD x = do 
-    response <- liftIO . MPD.withMPD $ x
-    case response of
-      Right value -> return value
-      Left err -> do 
-        handle err 
-        return undefined
+liftMPD :: MPD a -> ActionM (MPD.Response a)
+liftMPD x = liftIO . MPD.withMPD $ x
 
-handle :: Show a => a -> ActionM ()
-handle err = raise . T.pack $ show err
+raiseShowable :: Show a => a -> ActionM b
+raiseShowable err = raise . T.pack $ show err
+
+handle :: MPD.Response a -> ActionM a
+handle response =
+  case response of
+    Right value -> return value
+    Left err -> raiseShowable err 
 
 parseParams :: [Param] -> (MPD.Query, [Param])
 parseParams = foldl parseQueryParam (MPD.anything, [])

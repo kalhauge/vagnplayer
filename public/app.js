@@ -136,7 +136,7 @@
     }
 
     function addSong (song) {
-      return $http.put('api/playlist/' + song.path)
+      return $http.put('api/playlist', song)
         .then(updatePlaylist);
     }
   }

@@ -7,10 +7,13 @@ import Data.Aeson
 import Data.String
 import GHC.Generics
 
+import Web.Scotty
+
 import qualified Data.Map as M
 import qualified Network.MPD as MPD
 
-import qualified Data.Text                as T
+import qualified Data.Text.Lazy            as L
+import qualified Data.Text                 as T
 
 data Song = Song { title :: String
                  , artist :: String
@@ -20,6 +23,8 @@ data Song = Song { title :: String
                  } deriving (Show, Generic)
 
 instance ToJSON Song
+
+instance FromJSON Song
 
 toSong :: MPD.Song -> Song
 toSong s = Song 
@@ -34,12 +39,21 @@ newtype Path = Path MPD.Path deriving (Show)
 instance ToJSON Path where
     toJSON (Path path) = String $ T.pack $ MPD.toString path 
 
-toPath :: T.Text -> MPD.Path
-toPath text = fromString $ T.unpack text
+instance FromJSON Path where
+    parseJSON (String t) = return $ Path . fromString $ T.unpack t
+    parseJSON _ = fail "Should be string"
 
+toPath :: L.Text -> MPD.Path
+toPath text = fromString $ L.unpack text
+
+instance Parsable Path where
+    parseParam t = Right (Path $ toPath t)
 
 fromPath :: Path -> MPD.Path
 fromPath (Path path) = path
+
+addSong :: Song -> MPD.MPD ()
+addSong = MPD.add . fromPath . path
 
 type Playlist = [Song]
 
