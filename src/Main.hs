@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+import           System.Environment (getArgs)
+
 import           Network.Wai.Middleware.Static as S
 import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import           Web.Scotty
@@ -25,8 +27,10 @@ import           Data.Functor
 
 main :: IO ()
 main = do 
+  args <- getArgs
+  let port :: Int = read $ head args
   every 60000 setupMPD
-  scotty 8080 $ do
+  scotty port $ do
 
     middleware $ S.staticPolicy (S.noDots >-> S.addBase "public")
     middleware logStdoutDev
