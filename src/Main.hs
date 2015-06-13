@@ -77,14 +77,6 @@ setupMPD = do
     else 
       liftIO $ print "good"
 
-    playlists <- MPD.listPlaylists
-
-    liftIO $ print playlists
-
-    all <- MPD.config
-
-    liftIO $ print all
-
   case x of 
     Right x -> return ()
     Left err -> print err

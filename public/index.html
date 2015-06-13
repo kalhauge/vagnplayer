@@ -17,77 +17,78 @@
 </head>
 
 <body ng-controller="AppController as ctrl">
-    <div class="container">
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a href="#" class="navbar-brand">VAGN</a>
-            </div>
-            <ul class="nav navbar-nav navbar-right">
-                <li role="presentation" class="active">
-                   <a href="#">Playlist</a>
-                </li>
-                <li role="presentation">
-                    <a href="#">Control</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <div class="row">
+  <div class="container">
+    <!-- <nav class="navbar navbar-default">
+      <div class="container-fluid">
+      <div class="navbar-header">
+      <a href="#" class="navbar-brand">VAGN</a>
+      </div>
+      <ul class="nav navbar-nav navbar-right">
+      <li role="presentation" class="active">
+      <a href="#">Playlist</a>
+      </li>
+      <li role="presentation">
+      <a href="#">Control</a>
+      </li>
+      </ul>
+      </div>
+      </nav> -->
+      <div class="row">
         <div class="col-sm-12">
-        <form class="form" novalidate>
+          <form class="form" novalidate>
             <div class="form-group">
-                <label id="add-song-label"
-                       class="control-label hide" for="add-song" >Add Song</label>
-                <div>
-                    <input song-searcher class="typeahead tt-input form-control"
-                           id="add-song" 
-                           placeholder="Add Song" 
-                           type="text"/>
-                </div>
+              <label id="add-song-label"
+                     class="control-label hide" for="add-song" >Add Song</label>
+              <div>
+                <input song-searcher class="typeahead tt-input form-control"
+                                     id="add-song" 
+                                     placeholder="Add Song" 
+                                     type="text"/>
+              </div>
             </div>
-        </form>
+          </form>
 
-        <div class="pager">
+          <!-- <div class="pager">
             <div id="control" class="btn-group" ng-switch="ctrl.status.state">
-                <button class="btn btn-default btn-large" ng-click="ctrl.prev()">
-                    <span class="glyphicon glyphicon-fast-backward"></span>
-                </button>
-                <button class="btn btn-default btn-large" 
-                        ng-click="ctrl.pause()"
-                        ng-switch-when="PLAYING">
-                    <span class="glyphicon glyphicon-pause"></span>
-                </button>
-                <button class="btn btn-default btn-large" 
-                        ng-click="ctrl.play()"
-                        ng-switch-default>
-                    <span class="glyphicon glyphicon-play"></span>
-                </button>
-                <button class="btn btn-default btn-large" ng-click="ctrl.next()">
-                    <span class="glyphicon glyphicon-fast-forward"></span>
-                </button>
+              <button class="btn btn-default btn-large" ng-click="ctrl.prev()">
+                <span class="glyphicon glyphicon-fast-backward"></span>
+              </button>
+              <button class="btn btn-default btn-large" 
+                      ng-click="ctrl.pause()"
+                      ng-switch-when="PLAYING">
+                <span class="glyphicon glyphicon-pause"></span>
+              </button>
+              <button class="btn btn-default btn-large" 
+                      ng-click="ctrl.play()"
+                      ng-switch-default>
+                <span class="glyphicon glyphicon-play"></span>
+              </button>
+              <button class="btn btn-default btn-large" ng-click="ctrl.next()">
+                <span class="glyphicon glyphicon-fast-forward"></span>
+              </button>
             </div>
-        </div>
-        <div class="panel panel-default">
+          </div> -->
+
+          <div class="panel panel-default">
             <!-- <div class="panel-heading">Playlist</div> -->
             <div class="panel-body">
-                <div class="text-center">
-                  <b ng-bind="ctrl.status.song.title"></b> 
-                      <i>by</i> 
-                  <b ng-bind="ctrl.status.song.artist">Artist</b>
+              <div class="text-center">
+                <b ng-bind="ctrl.status.song.title"></b> 
+                <i>by</i> 
+                <b ng-bind="ctrl.status.song.artist">Artist</b>
+              </div>
+              {{ctrl.status.song.seconds}}
+              <div class="progress">
+                <div class="progress-bar" 
+                     role="progressbar" 
+                     aria-valuenow="{{ctrl.status.progess}}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100" 
+                     ng-style="{width: ctrl.status.progress + '%'}">
+                  <span class="sr-only">{{ctrl.status.progress}}% Complete</span>
                 </div>
-                {{ctrl.status.song.seconds}}
-                <div class="progress">
-                  <div class="progress-bar" 
-                       role="progressbar" 
-                       aria-valuenow="{{ctrl.status.progess}}" 
-                       aria-valuemin="0" 
-                       aria-valuemax="100" 
-                       ng-style="{width: ctrl.status.progress + '%'}">
-                    <span class="sr-only">{{ctrl.status.progress}}% Complete</span>
-                  </div>
-                </div>
-                <!--<pre ng-bind="ctrl.status | json"/>-->
+              </div>
+              <!--<pre ng-bind="ctrl.status | json"/>-->
             </div>
             <ul class="list-group">
                 <li class="list-group-item text-center" ng-repeat="song in ctrl.playlist">
