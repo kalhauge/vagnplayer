@@ -5,6 +5,7 @@ module Data.Status where
 
 import Safe
 import Data.Song 
+import Data.Functor
 
 import Data.Aeson
 import Debug.Trace

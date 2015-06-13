@@ -6,6 +6,7 @@ module Data.Control ( Command (..)
 
 import Control.Monad.Trans (liftIO)
 import Data.Aeson
+import Data.Functor
 
 import qualified Network.MPD as MPD
 

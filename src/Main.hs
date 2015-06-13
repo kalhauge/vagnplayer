@@ -5,7 +5,7 @@ import           Network.Wai.Middleware.Static as S
 import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import           Web.Scotty
 
-import           Network.MPD (MPD, (<&>), (=?))
+import           Network.MPD (MPD)
 import qualified Network.MPD                   as MPD
 
 import           Control.Monad.IO.Class
@@ -17,6 +17,7 @@ import qualified Data.Text.Lazy                as T
 import           Data.Song
 import           Data.Status
 import           Data.Control
+import           Data.Functor
 
 
 main :: IO ()
@@ -76,9 +77,9 @@ parseParams = foldl parseQueryParam (MPD.anything, [])
 
 parseQueryParam :: (MPD.Query, [Param]) -> Param -> (MPD.Query, [Param])
 parseQueryParam (a, ps) ("title", title) = 
-    (a <&> MPD.Title =? toValue title, ps) 
+    (a MPD.<&> MPD.Title MPD.=? toValue title, ps) 
 parseQueryParam (a, ps) ("artist", artist) = 
-    (a <&> MPD.Artist =? toValue artist, ps)
+    (a MPD.<&> MPD.Artist MPD.=? toValue artist, ps)
 parseQueryParam (a, ps) p = (a, p:ps)
 
 toValue :: T.Text -> MPD.Value
