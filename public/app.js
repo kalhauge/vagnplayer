@@ -15,6 +15,7 @@
         datumTokenizer : Bloodhound.tokenizers.whitespace,
         queryTokenizer : Bloodhound.tokenizers.whitespace,
         identify : function (d) { return d.path;},
+        prefetch : 'api/song?playlist=local&limit=1000',
         remote: {
           url : 'api/song',
           prepare: function (query, settings) { 
@@ -45,14 +46,18 @@
         name : "songs", 
         source : songs 
       });
+      
+      elem.on('typeahead:select', choose);
+      elem.on('typeahead:autocomplete', choose);
 
-      elem.on('typeahead:select', function (event, song) {
+      function choose (event, song) {
         if (song) {
           scope.ctrl.addSong(song).then(function () {
-            elem.val('');
+            elem.typeahead('val','');
           });
         }
-      });
+      }
+
     }
   }
 
@@ -136,7 +141,7 @@
     }
 
     function addSong (song) {
-      return $http.put('api/playlist/' + song.path)
+      return $http.put('api/playlist', song)
         .then(updatePlaylist);
     }
   }
