@@ -18,6 +18,7 @@ import           Data.String
 import qualified Data.Text.Lazy                as T
 
 import           Control.Periodically
+import           Control.Sound
 
 import           Data.Song
 import           Data.Status
@@ -29,7 +30,7 @@ main :: IO ()
 main = do 
   args <- getArgs
   let port :: Int = read $ head args
-  every 60000 setupMPD
+  every 30000 setupMPD
   scotty port $ do
 
     middleware $ S.staticPolicy (S.noDots >-> S.addBase "public")
@@ -42,8 +43,14 @@ main = do
     
     put "/api/playlist" $ do
       song <- jsonData
-      liftIO $ print song
-      handle =<< liftMPD (addSong song)
+      
+      maxLength <- liftIO maxPlaylistLength
+
+      handle =<< liftMPD (do 
+        status <- MPD.status
+        if MPD.stPlaylistLength status >= maxLength then
+          fail "Could not add song"
+        else addSong song)
       text "OK"
 
     get "/api/status" $ 
@@ -70,17 +77,26 @@ main = do
 setupMPD :: IO ()
 setupMPD = do 
   x <- MPD.withMPD $ do 
+    
     -- Always consume
     MPD.consume True
 
     -- Get status 
     status <- MPD.status
+
     -- If almost empty, refill
-    if MPD.stPlaylistLength status <= 2 then
-      -- Grap random local song 
-      liftIO $ print "bad"
-    else 
-      liftIO $ print "good"
+    when (MPD.stPlaylistLength status <= 2) $ do
+      void addRandomSong 
+  
+    mpl <- liftIO maxPlaylistLength
+    -- If too long crop it
+    when (MPD.stPlaylistLength status > mpl) $ 
+      cropPlaylist (fromIntegral mpl)
+
+    -- If not playling, start playing
+    case MPD.stState status of
+      MPD.Playing -> return ()
+      otherwise -> void $ MPD.play Nothing
 
   case x of 
     Right x -> return ()
@@ -99,6 +115,9 @@ handle response =
   case response of
     Right value -> return value
     Left err -> raiseShowable err 
+
+maxPlaylistLength :: IO Integer
+maxPlaylistLength = return 10
 
 parseParams :: [Param] -> (MPD.Query, [Param])
 parseParams = foldl parseQueryParam (MPD.anything, [])

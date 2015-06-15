@@ -42,6 +42,9 @@ executable vagnplayer
                      , wai-extra
                      , http-types
 
+                     -- , random-extras == 0.19
+                     , random-fu == 0.2.6.2
+
                      , text
 
                      , safe
