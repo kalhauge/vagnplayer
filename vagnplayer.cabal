@@ -43,7 +43,8 @@ executable vagnplayer
                      , http-types
 
                      -- , random-extras == 0.19
-                     , random-fu == 0.2.6.2
+                     -- , random-fu == 0.2.6.2
+                     , random
 
                      , text
 

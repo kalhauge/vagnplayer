@@ -6,16 +6,24 @@ import Network.MPD
 import Data.Maybe
 import Data.Ix (inRange)
 
+import System.Random
+
 --import Data.Random.Extras
-import Data.Random
+--import Data.Random
 import Data.Foldable
 
 import Control.Monad.IO.Class (liftIO)
 
+randomElement :: [a] -> IO a
+randomElement as = do
+    index <- getStdRandom $ randomR (0, size -1)
+    return $ as !! index
+  where size = length as
+
 addRandomSong :: MPD Song
 addRandomSong = do 
   songs <- foldl' onlySongs [] <$> listAllInfo "Local media" 
-  song <- liftIO $ runRVar (randomElement songs) StdRandom
+  song <- liftIO $ randomElement songs
   add (sgFilePath song)
   return song
 

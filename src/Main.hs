@@ -30,6 +30,12 @@ main :: IO ()
 main = do 
   args <- getArgs
   let port :: Int = read $ head args
+  MPD.withMPD $ do
+    MPD.clear
+    x <- MPD.lsInfo "Local media"
+    liftIO $ print x
+    MPD.add "local:track:startup.mp3"  
+    MPD.play Nothing 
   every 30000 setupMPD
   scotty port $ do
 
@@ -85,7 +91,7 @@ setupMPD = do
     status <- MPD.status
 
     -- If almost empty, refill
-    when (MPD.stPlaylistLength status < 2) $ do
+    when (MPD.stPlaylistLength status < 2) $ 
       void addRandomSong 
   
     mpl <- liftIO maxPlaylistLength
