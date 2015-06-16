@@ -11,6 +11,7 @@ import System.Random
 --import Data.Random.Extras
 --import Data.Random
 import Data.Foldable
+import Data.Functor
 
 import Control.Monad.IO.Class (liftIO)
 
@@ -43,7 +44,7 @@ crop :: (Position, Position) -> MPD ()
 crop range = do 
   songs <- playlistInfo Nothing 
   
-  mapM_ deleteId $ mapMaybe sgId $ filter songsNotInRange songs 
+  Data.Foldable.mapM_ deleteId $ mapMaybe sgId $ filter songsNotInRange songs 
 
   where songsNotInRange :: Song -> Bool
         songsNotInRange s = 
