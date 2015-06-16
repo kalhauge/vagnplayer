@@ -85,7 +85,7 @@ setupMPD = do
     status <- MPD.status
 
     -- If almost empty, refill
-    when (MPD.stPlaylistLength status <= 2) $ do
+    when (MPD.stPlaylistLength status < 2) $ do
       void addRandomSong 
   
     mpl <- liftIO maxPlaylistLength
