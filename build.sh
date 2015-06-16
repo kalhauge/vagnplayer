@@ -2,4 +2,5 @@
 
 cd `dirname $0`
 
-.cabal-sandbox/bin/vagnplayer $1 
+git pull
+cabal install
