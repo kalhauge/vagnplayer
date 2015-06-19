@@ -4,9 +4,9 @@ module Data.Control ( Command (..)
                     , control
                     ) where
 
-import Control.Monad.Trans (liftIO)
+--import Control.Monad.Trans (liftIO)
 import Data.Aeson
-import Data.Functor
+import Data.Functor 
 
 import qualified Network.MPD as MPD
 

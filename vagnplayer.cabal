@@ -45,6 +45,7 @@ executable vagnplayer
                      -- , random-extras == 0.19
                      -- , random-fu == 0.2.6.2
                      , random
+                     , bytestring
 
                      , text
 

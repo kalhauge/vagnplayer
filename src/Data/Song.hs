@@ -37,20 +37,20 @@ toSong s = Song
 newtype Path = Path MPD.Path deriving (Show)
 
 instance ToJSON Path where
-    toJSON (Path path) = String $ T.pack $ MPD.toString path 
+    toJSON (Path p) = String $ T.pack $ MPD.toString p 
 
 instance FromJSON Path where
     parseJSON (String t) = return $ Path . fromString $ T.unpack t
     parseJSON _ = fail "Should be string"
 
 toPath :: L.Text -> MPD.Path
-toPath text = fromString $ L.unpack text
+toPath t = fromString $ L.unpack t
 
 instance Parsable Path where
     parseParam t = Right (Path $ toPath t)
 
 fromPath :: Path -> MPD.Path
-fromPath (Path path) = path
+fromPath (Path p) = p
 
 addSong :: Song -> MPD.MPD ()
 addSong = MPD.add . fromPath . path

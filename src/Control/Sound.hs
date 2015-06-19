@@ -4,14 +4,13 @@ module Control.Sound where
 import Network.MPD
 
 import Data.Maybe
-import Data.Ix (inRange)
-
+import Data.Ix (inRange) 
 import System.Random
 
 --import Data.Random.Extras
 --import Data.Random
 import Data.Foldable
-import Data.Functor
+import Data.Functor ((<$>))
 
 import Control.Monad.IO.Class (liftIO)
 
@@ -50,7 +49,12 @@ crop range = do
         songsNotInRange s = 
           maybe False (not . inRange range) $ sgIndex s
 
-
-
-  
-
+-- Checks if the playlist is within certain seconds of beeing empty
+almostEmpty :: Int -> Status -> Bool
+almostEmpty time status = stPlaylistLength status == 1 && closeCall
+  where 
+    closeCall = 
+      case stTime status of
+        Just (timespend, length) ->
+          timespend > fromIntegral (length - fromIntegral time)
+        otherwise -> True

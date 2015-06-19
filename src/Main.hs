@@ -20,24 +20,29 @@ import qualified Data.Text.Lazy                as T
 import           Control.Periodically
 import           Control.Sound
 
+import           Data.Config
 import           Data.Song
 import           Data.Status
 import           Data.Control
 import           Data.Functor
 
-
 main :: IO ()
 main = do 
   args <- getArgs
-  let port :: Int = read $ head args
+
+  some <- readFromFile (head args) 
+  config <- case some of
+    Right config -> return config
+    Left string -> fail string
+
   MPD.withMPD $ do
     MPD.clear
-    x <- MPD.lsInfo "Local media"
-    liftIO $ print x
     MPD.add "local:track:startup.mp3"  
     MPD.play Nothing 
-  every 30000 setupMPD
-  scotty port $ do
+  
+  every (refreshTime config * 1000) $ setupMPD config
+  
+  scotty (port config) $ do
 
     middleware $ S.staticPolicy (S.noDots >-> S.addBase "public")
     middleware logStdoutDev
@@ -50,11 +55,11 @@ main = do
     put "/api/playlist" $ do
       song <- jsonData
       
-      maxLength <- liftIO maxPlaylistLength
+      let mpl = maxPlaylistLength config
 
       handle =<< liftMPD (do 
         status <- MPD.status
-        if MPD.stPlaylistLength status >= maxLength then
+        if MPD.stPlaylistLength status >= mpl then
           fail "Could not add song"
         else addSong song)
       text "OK"
@@ -74,14 +79,13 @@ main = do
               Nothing -> 10
       json $ take limit songs
        
-    
     put "/api/control" $ do
       (x :: Control) <- jsonData
       liftMPD $ control x
       text "OK"
 
-setupMPD :: IO ()
-setupMPD = do 
+setupMPD :: Config -> IO ()
+setupMPD config = do 
   x <- MPD.withMPD $ do 
     
     -- Always consume
@@ -90,11 +94,16 @@ setupMPD = do
     -- Get status 
     status <- MPD.status
 
+    liftIO $ print (MPD.stTime status) 
+
     -- If almost empty, refill
-    when (MPD.stPlaylistLength status < 2) $ 
-      void addRandomSong 
+    when (almostEmpty (refreshTime config - 5) status) $ do
+      song <- addRandomSong 
+      liftIO $ do 
+        putStr "Added "
+        print song
   
-    mpl <- liftIO maxPlaylistLength
+    let mpl = maxPlaylistLength config
     -- If too long crop it
     when (MPD.stPlaylistLength status > mpl) $ 
       cropPlaylist (fromIntegral mpl)
@@ -121,9 +130,6 @@ handle response =
   case response of
     Right value -> return value
     Left err -> raiseShowable err 
-
-maxPlaylistLength :: IO Integer
-maxPlaylistLength = return 10
 
 parseParams :: [Param] -> (MPD.Query, [Param])
 parseParams = foldl parseQueryParam (MPD.anything, [])
