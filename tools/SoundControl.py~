@@ -4,7 +4,6 @@ from time import sleep
 import Rpi.GPIO as GPIO
 
 
-url = 'http://localhost/'
 GPIO.setmode(GPIO.BCM)
 
 GPIO.setup(23, GPIO.IN)
@@ -17,6 +16,6 @@ while True:
         if(GPIO.input(24) == False):
                 os.system('amixer -q sset Master 3%-')
         if(GPIO.input(25) == False):
-        os.system('mpc next')
+                os.system('mpc clear')
                 
         sleep(0.1)
